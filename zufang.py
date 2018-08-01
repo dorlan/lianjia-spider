@@ -28,7 +28,7 @@ def collect_area_zufang(city_name, area_name, fmt="csv"):
     global total_num, today_path
 
     csv_file = today_path + "/{0}.csv".format(area_name)
-    with open(csv_file, "w") as f:
+    with open(csv_file, "w", encoding='utf-8') as f:
         # 开始获得需要的板块数据
         zufangs = get_area_zufang_info(city_name, area_name)
         # 锁定
