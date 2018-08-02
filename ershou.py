@@ -13,6 +13,7 @@ from lib.city.city import *
 from lib.city.ershou import *
 from lib.utility.version import PYTHON_3
 from lib.const.spider import thread_pool_size
+import sys
 
 
 def collect_area_ershou(city_name, area_name, fmt="csv"):
@@ -65,6 +66,10 @@ def get_area_ershou_info(city_name, area_name):
     try:
         page_box = soup.find_all('div', class_='page-box')[0]
         matches = re.search('.*"totalPage":(\d+),.*', str(page_box))
+        if matches is None:
+            print("\tWarning: only find zero page for {0}".format(area_name))
+            return ershou_list
+
         total_page = int(matches.group(1))
     except Exception as e:
         print("\tWarning: only find one page for {0}".format(area_name))
@@ -104,11 +109,19 @@ def get_area_ershou_info(city_name, area_name):
 if __name__ == "__main__":
     # 让用户选择爬取哪个城市的二手房小区价格数据
     prompt = create_prompt_text()
-    # 判断Python版本
-    if not PYTHON_3:  # 如果小于Python3
-        city = raw_input(prompt)
-    else:
-        city = input(prompt)
+
+    # 检测输入参数
+    city = ""
+    if len(sys.argv) > 1:
+        city = sys.argv[1]
+
+    if len(city) == 0:
+        # 判断Python版本
+        if not PYTHON_3:  # 如果小于Python3
+            city = raw_input(prompt)
+        else:
+            city = input(prompt)
+
     print('OK, start to crawl ' + get_chinese_city(city))
 
     # 准备日期信息，爬到的数据存放到日期相关文件夹下
@@ -135,6 +148,7 @@ if __name__ == "__main__":
         # 使用一个字典来存储区县和板块的对应关系, 例如{'beicai': 'pudongxinqu', }
         for area in areas_of_district:
             area_dict[area] = district
+
     print("Area:", areas)
     print("District and areas:", area_dict)
 

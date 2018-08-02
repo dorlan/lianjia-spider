@@ -14,7 +14,7 @@ from lib.city.city import *
 from lib.city.zufang import *
 from lib.utility.version import PYTHON_3
 from lib.const.spider import thread_pool_size
-
+import sys
 
 def collect_area_zufang(city_name, area_name, fmt="csv"):
     """
@@ -63,8 +63,17 @@ def get_area_zufang_info(city_name, area_name):
 
     # 获得总的页数
     try:
-        page_box = soup.find_all('div', class_='page-box')[0]
+        all = soup.find_all('div', class_='page-box')
+        if all is None:
+            print("\tfind_all Warning: only find zero page for {0}".format(area_name))
+            return zufang_list
+
+        page_box = all[0]
         matches = re.search('.*"totalPage":(\d+),.*', str(page_box))
+        if matches is None:
+            print("\tsearch Warning: only find zero page for {0}".format(area_name))
+            return zufang_list
+
         total_page = int(matches.group(1))
     except Exception as e:
         print("\tWarning: only find one page for {0}".format(area_name))
@@ -110,11 +119,19 @@ def get_area_zufang_info(city_name, area_name):
 if __name__ == "__main__":
     # 让用户选择爬取哪个城市的出租房价格数据
     prompt = create_prompt_text()
-    # 判断Python版本
-    if not PYTHON_3:  # 如果小于Python3
-        city = raw_input(prompt)
-    else:
-        city = input(prompt)
+
+    # 检测输入参数
+    city = ""
+    if len(sys.argv) > 1:
+        city = sys.argv[1]
+
+    if len(city) == 0:
+        # 判断Python版本
+        if not PYTHON_3:  # 如果小于Python3
+            city = raw_input(prompt)
+        else:
+            city = input(prompt)
+
     print('OK, start to crawl ' + get_chinese_city(city))
 
     # 准备日期信息，爬到的数据存放到日期相关文件夹下

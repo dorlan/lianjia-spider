@@ -75,6 +75,10 @@ def get_xiaoqu_info(city, area):
     try:
         page_box = soup.find_all('div', class_='page-box')[0]
         matches = re.search('.*"totalPage":(\d+),.*', str(page_box))
+        if matches is None:
+            print("\tWarning: only find zero page for {0} -> {1}".format(city, area))
+            return xiaoqu_list
+
         total_page = int(matches.group(1))
     except Exception as e:
         print("\tWarning: only find one page for {0}".format(area))

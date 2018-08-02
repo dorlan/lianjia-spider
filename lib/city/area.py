@@ -17,6 +17,14 @@ def get_district_url(city, district):
     """
     return "http://{0}.lianjia.com/xiaoqu/{1}".format(city, district)
 
+def get_district_url2(city, district):
+    """
+    拼接指定城市的区县url
+    :param city: 城市
+    :param district: 区县
+    :return:
+    """
+    return "https://{0}.lianjia.com/ershoufang/{1}".format(city, district)
 
 def get_areas(city, district):
     """
@@ -33,6 +41,14 @@ def get_areas(city, district):
         html = response.content
         root = etree.HTML(html)
         links = root.xpath(DISTRICT_AREA_XPATH)
+
+        # 容错，例如 zh 珠海，没有小区，区域直接从ershoufang/district/返回内容去取
+        if len(links) == 0:
+            page = get_district_url2(city, district)
+            response = requests.get(page, timeout=10, headers=headers)
+            html = response.content
+            root = etree.HTML(html)
+            links = root.xpath(DISTRICT_AREA_XPATH2)
 
         # 针对a标签的list进行处理
         for link in links:

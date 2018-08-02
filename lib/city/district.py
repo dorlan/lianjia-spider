@@ -37,15 +37,26 @@ def get_districts(city):
     elements = root.xpath(CITY_DISTRICT_XPATH)
     en_names = list()
     ch_names = list()
+
+    #如果上面的小区方式获取失败，尝试从二手房的区域取
+    if len(en_names) == 0:
+        page = 'https://{0}.lianjia.com/ershoufang/'.format(city)
+        # print('ershoufang: ' + page)
+        response = requests.get(page, timeout=10, headers=headers)
+        html = response.content
+        root = etree.HTML(html)
+        elements = root.xpath(CITY_DISTRICT_XPATH2)
+
     for element in elements:
         link = element.attrib['href']
+        # print("link: " + link + " text: " + element.text)
         en_names.append(link.split('/')[-2])
         ch_names.append(element.text)
 
         # 打印区县英文和中文名列表
     for index, name in enumerate(en_names):
         chinese_city_district_dict[name] = ch_names[index]
-        # print(name + ' -> ' + ch_names[index])
+        print(name + ' -> ' + ch_names[index])
     return en_names
 
 

@@ -15,7 +15,7 @@ from lib.url.xiaoqu import *
 from lib.city.city import *
 from lib.utility.version import PYTHON_3
 from lib.const.spider import thread_pool_size
-
+import sys
 
 def collect_xiaoqu_data(city_name, area_name, fmt="csv"):
     """
@@ -50,11 +50,18 @@ def collect_xiaoqu_data(city_name, area_name, fmt="csv"):
 if __name__ == "__main__":
     # 让用户选择爬取哪个城市的二手房小区价格数据
     prompt = create_prompt_text()
-    # 判断Python版本
-    if not PYTHON_3:    # 如果小于Python3
-        city = raw_input(prompt)
-    else:
-        city = input(prompt)
+
+    # 检测输入参数
+    city = ""
+    if len(sys.argv) > 1:
+        city = sys.argv[1]
+
+    if len(city) == 0:
+        # 判断Python版本
+        if not PYTHON_3:  # 如果小于Python3
+            city = raw_input(prompt)
+        else:
+            city = input(prompt)
 
     print('OK, start to crawl ' + get_chinese_city(city))
 
