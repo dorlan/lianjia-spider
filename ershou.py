@@ -38,7 +38,7 @@ def collect_area_ershou(city_name, area_name, fmt="csv"):
             mutex.release()
         if fmt == "csv":
             for ershou in ershous:
-                # print(date_string + "," + xiaoqu.text())
+                # print(date_string + "," + ershou.text())
                 f.write(date_string + "," + ershou.text()+"\n")
     print("Finish crawl area: " + area_name + ", save data to : " + csv_file)
 
@@ -92,13 +92,40 @@ def get_area_ershou_info(city_name, area_name):
             name = house_elem.find('div', class_='title')
             desc = house_elem.find('div', class_="houseInfo")
 
+            # 收集更为详细的数据，带看人数，关注，单价
+            positionInfo = house_elem.find('div', class_="positionInfo")
+            followInfo = house_elem.find('div', class_="followInfo")
+            # timeInfo = house_elem.find('div', class_="timeInfo")
+            unitPrice = house_elem.find('div', class_="unitPrice")
+            # tag = house_elem.find('div', class_="tag")
+
+            p = "" # 底层(共5层) 1958年建板楼 六铺炕
+            for info in positionInfo.contents:
+                if info.string is not None:
+                    s = info.string.replace("/", "")
+                    if len(s) > 0:
+                        p += s + " "
+            # print("positionInfo: ", p.strip())
+            f = "" # 53人关注 4次带看 房本满两年
+            for info in followInfo.contents:
+                if info.string is not None:
+                    s = info.string.replace("/", "")
+                    if len(s) > 0:
+                        f += s + " "
+            # print("followInfo: ", f.strip())
+
+            # print("timeInfo: ", timeInfo.text.strip())
+            # print("unitPrice: ", unitPrice.text.strip()) # 单价131525元/平米
+            u = unitPrice.text.strip()
+            # print("tag: ", tag.text.strip())
+
             # 继续清理数据
             price = price.text.strip()
             name = name.text.replace("\n", "")
             desc = desc.text.replace("\n", "").strip()
 
             # 作为对象保存
-            ershou = ErShou(chinese_district, chinese_area, name, price, desc)
+            ershou = ErShou(chinese_district, chinese_area, name, price, desc, p, f, u)
             ershou_list.append(ershou)
     return ershou_list
 
